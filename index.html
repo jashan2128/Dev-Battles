@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="GitHub Dev vs Dev Battle Card — pit two GitHub profiles against each other in a stat-by-stat battle."/>
+<meta property="og:title" content="Dev vs Dev — GitHub Battle Card"/>
+<meta property="og:description" content="Who wins? Enter two GitHub usernames and find out."/>
+<title>Dev vs Dev — GitHub Battle Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #1a1a24;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #f0f0f5;
+  --muted: #6b6b80;
+  --dim: #3a3a50;
+  --accent1: #7c6fff;
+  --accent2: #ff6b6b;
+  --accent1-dim: rgba(124,111,255,0.12);
+  --accent2-dim: rgba(255,107,107,0.12);
+  --green: #4ade80;
+  --green-dim: rgba(74,222,128,0.12);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251,191,36,0.12);
+  --mono: 'Space Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* subtle grid bg */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(124,111,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,111,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.header-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--accent1);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.header-eyebrow::before,
+.header-eyebrow::after {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--accent1);
+  opacity: 0.4;
+}
+
+h1 {
+  font-family: var(--mono);
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+h1 .vs {
+  color: var(--accent1);
+  font-style: italic;
+}
+
+.header-sub {
+  font-size: 15px;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+/* ── Input section ── */
+.input-section {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 32px;
+}
+
+.fighters-input {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-left: 2px;
+}
+
+.input-label.p1 { color: var(--accent1); }
+.input-label.p2 { color: var(--accent2); }
+
+.gh-input {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--text);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.gh-input::placeholder { color: var(--dim); }
+.gh-input:focus { border-color: rgba(124,111,255,0.5); box-shadow: 0 0 0 3px rgba(124,111,255,0.08); }
+.gh-input.p2:focus { border-color: rgba(255,107,107,0.5); box-shadow: 0 0 0 3px rgba(255,107,107,0.08); }
+
+.vs-divider {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: center;
+  letter-spacing: 0.05em;
+  margin-top: 20px;
+}
+
+.fight-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent1);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.fight-btn:hover { opacity: 0.88; }
+.fight-btn:active { transform: scale(0.99); }
+.fight-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Error / Loading ── */
+.error-box {
+  background: rgba(255,107,107,0.08);
+  border: 1px solid rgba(255,107,107,0.25);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #ff9999;
+  margin-bottom: 16px;
+  display: none;
+  font-family: var(--mono);
+}
+
+.loading-box {
+  text-align: center;
+  padding: 48px 24px;
+  display: none;
+}
+
+.loading-inner {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.loader {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent1);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+/* ── Arena ── */
+.arena { display: none; }
+.arena.visible { display: block; animation: fadeUp 0.4s ease; }
+@keyframes fadeUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── Winner banner ── */
+.winner-banner {
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  border: 1px solid;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.banner-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.banner-content { flex: 1; }
+.banner-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.banner-name {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.banner-liner {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.6;
+  font-style: italic;
+}
+.winner-p1 { background: var(--accent1-dim); border-color: rgba(124,111,255,0.3); }
+.winner-p1 .banner-label, .winner-p1 .banner-name { color: var(--accent1); }
+.winner-p1 .banner-liner { color: rgba(124,111,255,0.75); }
+.winner-p2 { background: var(--accent2-dim); border-color: rgba(255,107,107,0.3); }
+.winner-p2 .banner-label, .winner-p2 .banner-name { color: var(--accent2); }
+.winner-p2 .banner-liner { color: rgba(255,107,107,0.75); }
+.winner-tie { background: var(--amber-dim); border-color: rgba(251,191,36,0.3); }
+.winner-tie .banner-label, .winner-tie .banner-name { color: var(--amber); }
+.winner-tie .banner-liner { color: rgba(251,191,36,0.7); }
+
+/* ── Fighter cards ── */
+.fighters-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.fighter-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.fighter-card.p1-winner { border-color: rgba(124,111,255,0.4); }
+.fighter-card.p2-winner { border-color: rgba(255,107,107,0.4); }
+
+.fc-header {
+  padding: 18px 18px 14px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border);
+}
+
+.fc-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid var(--border2);
+}
+
+.fc-info { flex: 1; min-width: 0; }
+
+.fc-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.fc-handle {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.fc-class {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.fc-class.p1 { background: var(--accent1-dim); color: var(--accent1); border-color: rgba(124,111,255,0.25); }
+.fc-class.p2 { background: var(--accent2-dim); color: var(--accent2); border-color: rgba(255,107,107,0.25); }
+
+.fc-stats { padding: 14px 18px; display: flex; flex-direction: column; gap: 9px; }
+
+.stat-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.stat-name {
+  font-size: 11px;
+  color: var(--muted);
+  width: 70px;
+  flex-shrink: 0;
+}
+.bar-track {
+  flex: 1;
+  height: 4px;
+  background: var(--surface2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.bar-fill.p1 { background: var(--accent1); }
+.bar-fill.p2 { background: var(--accent2); }
+.stat-value {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  width: 40px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.fc-dots {
+  padding: 10px 18px 14px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  border-top: 1px solid var(--border);
+}
+.dot-label {
+  font-size: 10px;
+  color: var(--dim);
+  margin-right: 4px;
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--dim);
+  transition: background 0.3s;
+}
+.dot.won { background: var(--green); }
+.dot.lost { background: var(--accent2); }
+.dot.tied { background: var(--amber); }
+
+/* ── Round breakdown ── */
+.rounds-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.rounds-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+.rounds-header-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rounds-header-name.p1 { color: var(--accent1); text-align: left; }
+.rounds-header-name.p2 { color: var(--accent2); text-align: right; }
+.rounds-header-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-align: center;
+  padding: 0 12px;
+}
+
+.round-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 11px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.round-row:last-child { border-bottom: none; }
+.round-row:hover { background: rgba(255,255,255,0.02); }
+
+.round-val {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.round-val.left { text-align: right; }
+.round-val.right { text-align: left; }
+.round-val.won { color: var(--green); }
+.round-val.lost { color: var(--dim); font-weight: 400; }
+.round-val.tied { color: var(--amber); }
+
+.round-center {
+  text-align: center;
+  padding: 0 16px;
+}
+.round-icon { font-size: 14px; display: block; margin-bottom: 2px; }
+.round-name {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* ── Score footer ── */
+.score-footer {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--surface2);
+  border-top: 1px solid var(--border2);
+}
+.score-num {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 700;
+}
+.score-num.left { text-align: right; color: var(--accent1); }
+.score-num.right { text-align: left; color: var(--accent2); }
+.score-num.dim { color: var(--dim); }
+.score-label {
+  font-size: 10px;
+  color: var(--dim);
+  text-align: center;
+  font-family: var(--mono);
+  letter-spacing: 0.1em;
+  padding: 0 16px;
+}
+
+/* ── Actions ── */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+.action-btn {
+  padding: 12px 10px;
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--muted);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+.action-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+.action-btn.primary { background: var(--accent1); color: #fff; border-color: transparent; }
+.action-btn.primary:hover { opacity: 0.88; }
+.action-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* ── Footer ── */
+.site-footer {
+  text-align: center;
+  border-top: 1px solid var(--border);
+  padding-top: 28px;
+  font-size: 12px;
+  color: var(--dim);
+  font-family: var(--mono);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.site-footer a { color: var(--accent1); text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+
+/* ── Tips ── */
+.tip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.tip {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tip:hover { border-color: var(--accent1); color: var(--accent1); }
+
+/* ── Responsive ── */
+@media (max-width: 580px) {
+  .fighters-grid { grid-template-columns: 1fr; }
+  .fighters-input { grid-template-columns: 1fr; }
+  .vs-divider { display: none; }
+  .actions { grid-template-columns: 1fr 1fr; }
+  .actions .action-btn:last-child { grid-column: 1 / -1; }
+  h1 { font-size: 26px; }
+  .page { padding: 32px 16px 60px; }
+  .winner-banner { flex-direction: column; gap: 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="header">
+    <div class="header-eyebrow">GitHub Arena</div>
+    <h1>Dev <span class="vs">vs</span> Dev</h1>
+    <p class="header-sub">Pit two GitHub profiles against each other in a stat-by-stat battle</p>
+  </header>
+
+  <div class="input-section">
+    <div class="fighters-input">
+      <div class="input-wrap">
+        <span class="input-label p1">&#9654; Fighter 1</span>
+        <input class="gh-input" id="u1" type="text" placeholder="e.g. torvalds" autocomplete="off" spellcheck="false"/>
+      </div>
+      <div class="vs-divider">VS</div>
+      <div class="input-wrap">
+        <span class="input-label p2">Fighter 2 &#9654;</span>
+        <input class="gh-input p2" id="u2" type="text" placeholder="e.g. gaearon" autocomplete="off" spellcheck="false"/>
+      </div>
+    </div>
+
+    <div class="tip-row" id="tipRow">
+      <span class="tip" onclick="fillTip('torvalds','gaearon')">torvalds vs gaearon</span>
+      <span class="tip" onclick="fillTip('sindresorhus','tj')">sindresorhus vs tj</span>
+      <span class="tip" onclick="fillTip('yyx990803','antfu')">yyx990803 vs antfu</span>
+    </div>
+  </div>
+
+  <div class="error-box" id="errBox"></div>
+  <div class="loading-box" id="loadBox">
+    <div class="loading-inner">
+      <div class="loader"></div>
+      <div class="loading-text" id="loadTxt">Summoning fighters...</div>
+    </div>
+  </div>
+
+  <button class="fight-btn" id="fightBtn" onclick="startBattle()">&#9876; Start Battle</button>
+
+  <div class="arena" id="arena">
+
+    <div id="bannerSection" style="margin-top:28px"></div>
+
+    <div class="fighters-grid" id="fightersGrid"></div>
+
+    <div class="rounds-card">
+      <div class="rounds-header">
+        <div class="rounds-header-name p1" id="rh1">Fighter 1</div>
+        <div class="rounds-header-label">Round breakdown</div>
+        <div class="rounds-header-name p2" id="rh2">Fighter 2</div>
+      </div>
+      <div id="roundsBody"></div>
+      <div class="score-footer">
+        <div class="score-num left" id="scoreL">0</div>
+        <div class="score-label">rounds won</div>
+        <div class="score-num right" id="scoreR">0</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="action-btn" onclick="copyBadge()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy badge
+      </button>
+      <button class="action-btn" id="shareBtn" onclick="shareResult()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Share
+      </button>
+      <button class="action-btn primary" onclick="resetArena()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+        New battle
+      </button>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">
+    <div>Built with the GitHub public API &mdash; no auth required</div>
+    <div>
+      <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;&middot;&nbsp;
+      Data refreshes on every battle
+    </div>
+  </footer>
+
+</div>
+
+<script>
+const CLASSES = [
+  {id:"legend",    label:"Legend",          cond:d=>d.followers>=1000 && d.stars>=500},
+  {id:"veteran",   label:"Veteran",         cond:d=>d.age>=6},
+  {id:"prolific",  label:"Prolific",        cond:d=>d.repos>=50},
+  {id:"sniper",    label:"Precision sniper",cond:d=>d.avgStars>=10 && d.repos<=30},
+  {id:"socialite", label:"Socialite",       cond:d=>d.followers>=200},
+  {id:"hoarder",   label:"Repo hoarder",    cond:d=>d.repos>=35},
+  {id:"pioneer",   label:"Pioneer",         cond:d=>d.age<2 && d.repos>=10},
+  {id:"rookie",    label:"Rookie",          cond:()=>true}
+];
+
+const ROUNDS = [
+  {key:"stars",     label:"Stars",       icon:"&#11088;", fmt:n=>fmtN(n)},
+  {key:"repos",     label:"Repos",       icon:"&#128193;",fmt:n=>String(n)},
+  {key:"followers", label:"Followers",   icon:"&#128101;",fmt:n=>fmtN(n)},
+  {key:"age",       label:"Account age", icon:"&#128197;",fmt:n=>n.toFixed(1)+"y"},
+  {key:"avgStars",  label:"Avg stars",   icon:"&#127775;",fmt:n=>n.toFixed(1)},
+  {key:"langCount", label:"Languages",   icon:"&#128187;",fmt:n=>String(n)}
+];
+
+const SAVAGE = [
+  [
+    "{w} didn't just win — {l}'s repos called and asked for a mentor.",
+    "{w} runs circles around {l}. {l}'s commit history looks like a weekend project.",
+    "{l} showed up to a gunfight with a rubber duck. {w} wins, no contest."
+  ],
+  [
+    "{l} is a fine developer. {w} is what {l} googles for inspiration.",
+    "Close battle — but {w} edges it. {l} can watch the replay and learn.",
+    "{w} pulls ahead. {l} needs more coffee and fewer merge conflicts."
+  ],
+  [
+    "Almost a draw — {w} wins by a commit. {l} will sleep fine tonight.",
+    "{w} by a whisker. {l} put up a real fight. Rematch incoming?",
+    "Judges score it {w}. {l} is filing a formal complaint as we speak."
+  ]
+];
+
+const TIE_LINES = [
+  "Two equally matched devs. The GitHub universe remains balanced.",
+  "Dead heat. Both are dangerous. The real loser is indecision.",
+  "Can't split these two. Flip a coin, both are worth following."
+];
+
+function fmtN(n){return n>=1000?(n/1000).toFixed(1)+"k":String(n);}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+let lastS1=null,lastS2=null;
+
+function fillTip(a,b){
+  document.getElementById("u1").value=a;
+  document.getElementById("u2").value=b;
+  startBattle();
+}
+
+async function startBattle(){
+  const u1=document.getElementById("u1").value.trim().replace(/^@/,"");
+  const u2=document.getElementById("u2").value.trim().replace(/^@/,"");
+  if(!u1||!u2){showErr("Enter both GitHub usernames to start.");return;}
+  if(u1.toLowerCase()===u2.toLowerCase()){showErr("Choose two different developers — no self-battles allowed.");return;}
+
+  showErr("");
+  document.getElementById("arena").classList.remove("visible");
+  document.getElementById("fightBtn").disabled=true;
+  setLoad(true,"Summoning fighters...");
+
+  try{
+    setLoad(true,"Fetching "+u1+"...");
+    const [r1u,r1r]=await Promise.all([
+      fetch("https://api.github.com/users/"+u1),
+      fetch("https://api.github.com/users/"+u1+"/repos?per_page=100&sort=stars")
+    ]);
+    if(!r1u.ok){bail(r1u.status===404?'"'+u1+'" not found on GitHub.':"GitHub API error. Try again shortly.");return;}
+
+    setLoad(true,"Fetching "+u2+"...");
+    const [r2u,r2r]=await Promise.all([
+      fetch("https://api.github.com/users/"+u2),
+      fetch("https://api.github.com/users/"+u2+"/repos?per_page=100&sort=stars")
+    ]);
+    if(!r2u.ok){bail(r2u.status===404?'"'+u2+'" not found on GitHub.':"GitHub API error. Try again shortly.");return;}
+
+    setLoad(true,"Calculating battle scores...");
+    const [d1,d2]=await Promise.all([r1u.json(),r2u.json()]);
+    const [repos1,repos2]=await Promise.all([r1r.ok?r1r.json():Promise.resolve([]),r2r.ok?r2r.json():Promise.resolve([])]);
+
+    renderBattle(d1,repos1,d2,repos2);
+  }catch(e){bail("Network error — check your connection and try again.");}
+}
+
+function buildStats(user,repos){
+  const pub=Array.isArray(repos)?repos.filter(r=>!r.fork):[];
+  const stars=pub.reduce((s,r)=>s+(r.stargazers_count||0),0);
+  const age=(Date.now()-new Date(user.created_at))/(1000*60*60*24*365);
+  const langs={};pub.forEach(r=>{if(r.language)langs[r.language]=(langs[r.language]||0)+1;});
+  return{
+    login:user.login,name:user.name||user.login,avatar:user.avatar_url,bio:user.bio||"",
+    repos:user.public_repos||0,followers:user.followers||0,following:user.following||0,
+    stars,age,avgStars:pub.length?(stars/pub.length):0,langCount:Object.keys(langs).length,
+    topLangs:Object.entries(langs).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0])
+  };
+}
+
+function getClass(s){return CLASSES.find(c=>c.cond(s))||CLASSES[CLASSES.length-1];}
+
+function renderBattle(u1,r1,u2,r2){
+  setLoad(false);
+  document.getElementById("fightBtn").disabled=false;
+
+  const s1=buildStats(u1,r1), s2=buildStats(u2,r2);
+  lastS1=s1; lastS2=s2;
+
+  let w1=0,w2=0,ties=0;
+  const rr=ROUNDS.map(round=>{
+    const v1=s1[round.key],v2=s2[round.key];
+    let winner=0;
+    if(v1>v2){w1++;winner=1;}
+    else if(v2>v1){w2++;winner=2;}
+    else ties++;
+    return{...round,v1,v2,winner};
+  });
+
+  const overall=w1>w2?1:w2>w1?2:0;
+  const cl1=getClass(s1), cl2=getClass(s2);
+  const wName=overall===1?s1.name:s2.name;
+  const lName=overall===1?s2.name:s1.name;
+
+  // Banner
+  const bannerEl=document.getElementById("bannerSection");
+  if(overall===0){
+    bannerEl.innerHTML=`<div class="winner-banner winner-tie">
+      <div class="banner-icon">&#9876;</div>
+      <div class="banner-content">
+        <div class="banner-label">Result &mdash; draw</div>
+        <div class="banner-name">It's a tie!</div>
+        <div class="banner-liner">${pick(TIE_LINES)}</div>
+      </div>
+    </div>`;
+  }else{
+    const margin=Math.abs(w1-w2);
+    const pool=margin>=3?SAVAGE[0]:margin===2?SAVAGE[1]:SAVAGE[2];
+    const liner=pick(pool).replace(/{w}/g,wName).replace(/{l}/g,lName);
+    const cls=overall===1?"winner-p1":"winner-p2";
+    bannerEl.innerHTML=`<div class="winner-banner ${cls}">
+      <div class="banner-icon">&#127942;</div>
+      <div class="banner-content">
+        <div class="banner-label">Winner &mdash; ${Math.abs(w1-w2)} round lead</div>
+        <div class="banner-name">${wName} wins</div>
+        <div class="banner-liner">${liner}</div>
+      </div>
+    </div>`;
+  }
+
+  // Fighter cards
+  const maxSt=Math.max(s1.stars,s2.stars,1);
+  const maxRp=Math.max(s1.repos,s2.repos,1);
+  const maxFo=Math.max(s1.followers,s2.followers,1);
+  const maxAg=Math.max(s1.age,s2.age,1);
+  const maxAv=Math.max(s1.avgStars,s2.avgStars,1);
+  const maxLc=Math.max(s1.langCount,s2.langCount,1);
+
+  function maxFor(k){return{stars:maxSt,repos:maxRp,followers:maxFo,age:maxAg,avgStars:maxAv,langCount:maxLc}[k]||1;}
+  function pct(v,mx){return Math.round((v/mx)*100);}
+
+  function makeCard(s,cl,pn,rr,winnerOverall){
+    const isWinner=winnerOverall===pn;
+    const winClass=pn===1?"p1-winner":"p2-winner";
+    const clClass=pn===1?"p1":"p2";
+    const barClass=pn===1?"p1":"p2";
+    const dots=rr.map(r=>{
+      const outcome=r.winner===pn?"won":r.winner===0?"tied":"lost";
+      return`<div class="dot ${outcome}" title="${r.label}: ${outcome}"></div>`;
+    }).join("");
+    return`<div class="fighter-card ${isWinner?winClass:''}">
+      <div class="fc-header">
+        <img class="fc-avatar" src="${s.avatar}" alt="${s.name}" loading="lazy"/>
+        <div class="fc-info">
+          <div class="fc-name">${s.name}</div>
+          <div class="fc-handle">@${s.login}</div>
+          <span class="fc-class ${clClass}">${cl.label}</span>
+        </div>
+      </div>
+      <div class="fc-stats">
+        ${[{k:"stars",l:"Stars",v:s.stars,m:maxSt},{k:"repos",l:"Repos",v:s.repos,m:maxRp},{k:"followers",l:"Followers",v:s.followers,m:maxFo}]
+          .map(({k,l,v,m})=>`
+          <div class="stat-line">
+            <span class="stat-name">${l}</span>
+            <div class="bar-track"><div class="bar-fill ${barClass}" style="width:${pct(v,m)}%"></div></div>
+            <span class="stat-value">${fmtN(v)}</span>
+          </div>`).join("")}
+      </div>
+      <div class="fc-dots">
+        <span class="dot-label">Rounds</span>
+        ${dots}
+      </div>
+    </div>`;
+  }
+
+  document.getElementById("fightersGrid").innerHTML=
+    makeCard(s1,cl1,1,rr,overall)+
+    makeCard(s2,cl2,2,rr,overall);
+
+  // Round headers
+  document.getElementById("rh1").textContent=s1.login;
+  document.getElementById("rh2").textContent=s2.login;
+
+  // Round rows
+  document.getElementById("roundsBody").innerHTML=rr.map(r=>{
+    const c1=r.winner===1?"won":r.winner===0?"tied":"lost";
+    const c2=r.winner===2?"won":r.winner===0?"tied":"lost";
+    return`<div class="round-row">
+      <div class="round-val left ${c1}">${r.fmt(r.v1)}</div>
+      <div class="round-center">
+        <span class="round-icon">${r.icon}</span>
+        <span class="round-name">${r.label}</span>
+      </div>
+      <div class="round-val right ${c2}">${r.fmt(r.v2)}</div>
+    </div>`;
+  }).join("");
+
+  // Score
+  document.getElementById("scoreL").textContent=String(w1);
+  document.getElementById("scoreR").textContent=String(w2);
+  const sL=document.getElementById("scoreL");
+  const sR=document.getElementById("scoreR");
+  sL.className="score-num left"+(overall===1?"":(overall===2?" dim":""));
+  sR.className="score-num right"+(overall===2?"":(overall===1?" dim":""));
+
+  document.getElementById("arena").classList.add("visible");
+  document.getElementById("arena").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function resetArena(){
+  document.getElementById("arena").classList.remove("visible");
+  document.getElementById("u1").value="";
+  document.getElementById("u2").value="";
+  document.getElementById("errBox").style.display="none";
+  document.getElementById("u1").focus();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function copyBadge(){
+  if(!lastS1||!lastS2)return;
+  const md=`[![Dev Battle](https://img.shields.io/badge/⚔️_Dev_Battle-${encodeURIComponent(lastS1.login)}_vs_${encodeURIComponent(lastS2.login)}-7c6fff?style=for-the-badge&logo=github)](https://github.com/${lastS1.login})`;
+  navigator.clipboard.writeText(md).then(()=>{
+    const btn=document.querySelector(".actions .action-btn");
+    const orig=btn.innerHTML;
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+    setTimeout(()=>{btn.innerHTML=orig;},2000);
+  }).catch(()=>{});
+}
+
+function shareResult(){
+  if(!lastS1||!lastS2)return;
+  const url=window.location.href.split("?")[0];
+  const text=`⚔️ GitHub Dev Battle: ${lastS1.login} vs ${lastS2.login} — who wins? Check it out!`;
+  if(navigator.share){
+    navigator.share({title:"Dev vs Dev Battle",text,url}).catch(()=>{});
+  }else{
+    navigator.clipboard.writeText(text+" "+url).then(()=>{
+      const btn=document.getElementById("shareBtn");
+      const orig=btn.innerHTML;
+      btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Link copied!';
+      setTimeout(()=>{btn.innerHTML=orig;},2000);
+    }).catch(()=>{});
+  }
+}
+
+function showErr(msg){
+  const el=document.getElementById("errBox");
+  el.style.display=msg?"block":"none";
+  el.textContent=msg;
+}
+function setLoad(on,txt){
+  document.getElementById("loadBox").style.display=on?"block":"none";
+  if(txt)document.getElementById("loadTxt").textContent=txt;
+}
+function bail(msg){setLoad(false);document.getElementById("fightBtn").disabled=false;showErr(msg);}
+
+document.getElementById("u1").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("u2").focus();});
+document.getElementById("u2").addEventListener("keydown",e=>{if(e.key==="Enter")startBattle();});
+</script>
+
+</body>
+</html>
